@@ -81,7 +81,7 @@ function buildCatalog(){
  for(let n=4;n<=3+monthDiff(date.year,date.month);n++)add(p,`Tethys ${n}`,'Accessories',5000+(n-3)*1000,'Monthly screen-protection accessory','accessory');
  // Enceladus M20 onward: publish every generation, with Pro/Max variants for Messier galaxy models.
  const messierGalaxy=new Set([31,32,33,49,51,58,59,60,61,63,64,65,66,74,77,81,82,83,84,86,87,88,89,90,91,94,95,96,98,99,100,101,102,104]);
- for(let n=20;n<=mChip;n++){
+ for(let n=Math.max(20,mChip-14);n<=mChip;n++){
    const architecture=n===20?'Trifid Nebula':n===31?'Andromeda Galaxy':n===32?'Andromeda satellite galaxy':n===33?'Triangulum Galaxy':messierGalaxy.has(n)?'Messier Galaxy':'Enceladus M series';
    add(p,`Enceladus M${n}`,'Chips',n*100,`${architecture} · Enceladus M${n}`,'chip',{architecture});
    if(messierGalaxy.has(n)){
@@ -114,29 +114,25 @@ function categoryButtons(){ $('categoryRow').innerHTML=categoryNames.map(c=>`<bu
 function nextSaleText(){const m=date.month;if(m<=3)return {name:'New Year Sale',when:'Active now · through 31 March',percent:35};if(m>=8&&m<=10)return {name:'Autumn Sale',when:'Active now · through 31 October',percent:20};if(m===11)return {name:'Rebirth Era Sale',when:'Active now · through 30 November',percent:65};if(m>=4&&m<=7)return {name:'Autumn Sale',when:'Coming 1 August',percent:20};return {name:'New Year Sale',when:'Coming 1 January',percent:35};}
 function renderOffers(){const next=nextSaleText();const offers=[{name:'New Year Sale',percent:35,period:'January – March',description:'35% off catalogue products.'},{name:'Autumn Sale',percent:20,period:'August – October',description:'20% off catalogue products.'},{name:'Rebirth Era Sale',percent:65,period:'November',description:'65% off for Metxon founding month; 15 November is Founding Day.'}];$('offerGrid').innerHTML=offers.map(o=>`<div class="offer"><strong>${o.name} ${SALE.name===o.name?'<span class="badge">Active</span>':''}</strong><div class="percent">${o.percent}% OFF</div><p><b>${o.period}</b></p><p class="muted">${o.description}</p></div>`).join('');$('heroSale').innerHTML=`<span class="sale-pill">${SALE.percent?SALE.percent+'% OFF · ':''}${safe(SALE.name)}</span><span class="sale-pill">${date.day} ${new Intl.DateTimeFormat('en-IN',{month:'long',timeZone:'Asia/Kolkata'}).format(new Date())} ${date.year}</span>`;}
 function launchItems(){
- const monthKey=date.year*12+date.month-1, cycle=Math.max(1,monthKey-(2026*12+9)+1);
- const nextGen=deviceGeneration+1, nextChip=mChip+1;
- const queue=[
-  {name:`Nebula M${nextGen}`,icon:'📱',text:'New flagship smartphone'},
-  {name:`Nebula M${nextGen} Pro`,icon:'📱',text:'Flagship Pro release'},
-  {name:`Nebula M${nextGen} Elite`,icon:'📱',text:'Flagship Elite release'},
-  {name:`Nebula A${nextGen}`,icon:'📱',text:'Mid-range smartphone release'},
-  {name:`Nebula A${nextGen} Pro`,icon:'📱',text:'Mid-range Pro release'},
-  {name:`Nebula A${nextGen} Elite`,icon:'📱',text:'Mid-range Elite release'},
-  {name:`Nebula B${nextGen}`,icon:'📱',text:'Budget smartphone release'},
-  {name:`NebulaBook M${nextGen}`,icon:'💻',text:'Premium laptop release'},
-  {name:`NebulaTab M${nextGen}`,icon:'▣',text:'Premium tablet release'},
-  {name:`Enceladus M${nextChip}`,icon:'⚡',text:'New Enceladus processor launch'},
-  {name:`MetOS ${metOS+1}`,icon:'🌌',text:'New MetOS licence release'},
-  {name:`Rigel O${rigelO+1}`,icon:'🖥️',text:'New OLED display release'},
-  {name:`SKY M${skyM+1}`,icon:'📷',text:'New camera module release'},
-  {name:`Triton ${Math.min(99,51+cycle)}`,icon:'🔋',text:'New battery component release'},
-  {name:cycle%2===1?'MetCart 45W USB-C Charger':'MetCart 100W GaN Charger',icon:'🔌',text:'Charging accessory release'}
+ const monthIndex=Math.max(0,(date.year-2026)*12+(date.month-10));
+ const gen=2+monthIndex, chip=mChip+1, os=metOS+1, disp=rigelO+1, cam=skyM+1, bat=Math.min(99,51+monthIndex);
+ const launchSet=[
+  {category:'Smartphones',name:`Nebula M${gen}`,icon:'📱',text:'Monthly flagship phone launch'},
+  {category:'Fold & Flip',name:`Nebula Z${gen} Fold`,icon:'📱',text:'Monthly foldable-device launch'},
+  {category:'Laptops',name:`NebulaBook M${gen}`,icon:'💻',text:'Monthly laptop launch'},
+  {category:'Development laptops',name:`NebulaBook D${gen}`,icon:'🧑‍💻',text:'Monthly developer-laptop launch'},
+  {category:'Tablets',name:`NebulaTab M${gen}`,icon:'▣',text:'Monthly tablet launch'},
+  {category:'Watches',name:`NebulaWatch M${gen}`,icon:'⌚',text:'Monthly wearable launch'},
+  {category:'Chips',name:`Enceladus M${chip}`,icon:'⚡',text:'Monthly processor launch'},
+  {category:'Operating systems',name:`MetOS ${os}`,icon:'🌌',text:'Monthly operating-system launch'},
+  {category:'Displays',name:`Rigel O${disp}`,icon:'🖥️',text:'Monthly display launch'},
+  {category:'Batteries',name:`Triton ${bat}`,icon:'🔋',text:'Monthly battery launch'},
+  {category:'Cameras',name:`SKY M${cam}`,icon:'📷',text:'Monthly camera launch'},
+  {category:'Chargers',name:monthIndex%3===0?'MetCart 20W Solar Charger':monthIndex%3===1?'MetCart 45W Magnetic Charger':'MetCart 100W Static Charger',icon:'🔌',text:'Monthly charger launch'},
+  {category:'Accessories',name:`MetCart Accessory ${gen}`,icon:'🧩',text:'Monthly accessory launch'}
  ];
- const chosen=queue[(cycle-1)%queue.length];
- const found=products.find(p=>p.name===chosen.name);
- const price=found?found.price:0;
- $('launchList').innerHTML=`<div class="launch"><span class="emoji">${chosen.icon}</span><b>${safe(chosen.name)}</b><span class="small">${safe(chosen.text)} · ${price?money(price):'Scheduled catalogue release'}</span><p class="small">Scheduled launch: ${safe(new Intl.DateTimeFormat('en-IN',{month:'long',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(date.year,date.month,1)))}</p></div>`;
+ const dateLabel=new Intl.DateTimeFormat('en-IN',{month:'long',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(date.year,date.month-1,1));
+ $('launchList').innerHTML=launchSet.map(item=>{const found=products.find(p=>p.name===item.name);const price=found?money(found.price):'Upcoming';return `<div class="launch"><span class="emoji">${item.icon}</span><b>${safe(item.name)}</b><span class="small">${safe(item.category)} · ${safe(item.text)} · ${price}</span><p class="small">Scheduled launch: ${safe(dateLabel)}</p></div>`;}).join('');
 }
 function productSearch(p){return norm([p.name,p.category,p.description,p.architecture,p.display,p.cameraTier].join(' ')).includes(norm(query));}
 function renderProducts(){let arr=products.filter(p=>(currentCategory==='All'||p.category===currentCategory)&&productSearch(p));const sort=$('sortSelect').value;if(sort==='low')arr.sort((a,b)=>a.price-b.price);else if(sort==='high')arr.sort((a,b)=>b.price-a.price);else if(sort==='name')arr.sort((a,b)=>a.name.localeCompare(b.name));else arr.sort((a,b)=>Number(b.isNew||0)-Number(a.isNew||0)||a.name.localeCompare(b.name));$('catalogTitle').textContent=currentCategory==='All'?'All products':currentCategory;$('catalogCaption').textContent=query?`Search results for “${query}”`:`${SALE.percent?SALE.percent+'% offer applied · ':''}Click any product to view specifications and reviews.`;$('productCount').textContent=`${arr.length} product${arr.length===1?'':'s'}`;if(!arr.length){$('productGrid').innerHTML='<div class="empty">No products match this search. Try a different name or category.</div>';return;}$('productGrid').innerHTML=arr.map(p=>{const base=Number(p.basePrice??p.price),sold=Number(soldMap[p.name]||0);const stockTag=p.kind==='software'?'Digital licence':p.kind==='chip'?'Component':p.kind==='accessory'?'Accessory':p.isNew?'New launch':p.category;return `<article class="product" data-product="${safe(p.name)}"><button class="product-art" style="border:0;width:100%" data-detail="${safe(p.name)}" aria-label="Specifications for ${safe(p.name)}">${iconForProduct(p)}</button><div class="productbody"><div class="tagrow"><span class="tag">${safe(stockTag)}</span>${SALE.percent?`<span class="tag sale">-${SALE.percent}%</span>`:''}</div><h3>${safe(p.name)}</h3><p class="desc">${safe(p.description)}</p><div class="price"><strong>${money(p.price)}</strong>${SALE.percent?`<span class="was">${money(base)}</span><span class="save">Save ${money(base-p.price)}</span>`:''}</div><div class="productmeta"><span>★ ${p.rating?Number(p.rating).toFixed(1):'New'} (${Number(p.reviewCount||0)})</span><span>${sold.toLocaleString('en-IN')} bought</span></div><div class="productbuttons"><button class="secondary" data-detail="${safe(p.name)}">Specifications</button><button class="primary" data-add="${safe(p.name)}">Add to cart</button></div></div></article>`;}).join('');}
@@ -144,7 +140,7 @@ function specsFor(p){
  const n=p.name, cat=p.category||'', name=n.toLowerCase();
  const isDevice=['Smartphones','Fold & Flip','Laptops','Development laptops','Tablets','Watches'].includes(cat);
  if(cat==='Chips'||cat==='Processors'){
-   return [{k:'Processor family',v:p.architecture|| (cat==='Processors'?'APU':'Enceladus M series')},{k:'Model',v:n},{k:'Performance tier',v:p.variant||(/ Max$/.test(n)?'Max':/ Pro$/.test(n)?'Pro':'Standard')},{k:'Component type',v:cat==='Processors'?'All-in-one processing unit':'Mobile / compute silicon'},{k:'Power / thermal profile',v:cat==='Processors'?'High-performance component; requires compatible cooling':'Architecture-dependent; see compatible device requirements'},{k:'Compatibility',v:'Check the host device or motherboard specifications before purchase'}];
+   const mm=n.match(/Enceladus M\\s*(\\d+)/i);const digits=mm?String(mm[1]).padStart(2,'0'):'00';const cpuCores=Number(digits[0])*10;const gpuCores=Number(digits[digits.length-1])*10;return [{k:'Processor family',v:p.architecture||'Enceladus M series'},{k:'Model',v:n},{k:'CPU cores',v:`${cpuCores} CPU cores (${digits[0]} × 10)`},{k:'GPU cores',v:`${gpuCores} GPU cores (${digits[digits.length-1]} × 10)`},{k:'Performance tier',v:p.variant||(/ Max$/.test(n)?'Max':/ Pro$/.test(n)?'Pro':'Standard')},{k:'Component type',v:'Processor / compute silicon'},{k:'Compatibility',v:'Check host-device support and cooling requirements before purchase'}];
  }
  if(cat==='Batteries'){return [{k:'Component',v:n},{k:'Capacity',v:(p.capacityMah||Number((n.match(/Triton (\d+)/)||[])[1]||0)*100)+' mAh'},{k:'Type',v:'Replacement battery component'},{k:'Compatibility',v:'Confirm the exact device model before ordering'}];}
  if(cat==='Displays'){return [{k:'Panel',v:p.display||(/Rigel O/.test(n)?'OLED':/Rigel A/.test(n)?'AMOLED':'LCD')},{k:'Component',v:n},{k:'Use',v:'Replacement display component'},{k:'Compatibility',v:'Confirm connector, size and device model before ordering'}];}
