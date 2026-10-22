@@ -66,7 +66,7 @@ function buildCatalog(){
  for(const [name,category,price,description] of legacy)add(p,name,category,price,description,'device');
  // Current and newly generated monthly device families.
  for(let n=1;n<=deviceGeneration;n++){
-   if(n>1){add(p,`Nebula M${n}`,'Smartphones',40000+(n-1)*5000,'Premium Nebula M-series smartphone','device');add(p,`Nebula M${n} Pro`,'Smartphones',70000+(n-1)*6000,'Premium performance variant','device');add(p,`Nebula M${n} Max`,'Smartphones',120000+(n-1)*8000,'Maximum-performance flagship','device');
+   if(n>1){add(p,`Nebula M${n}`,'Smartphones',40000+(n-1)*5000,'Premium Nebula M-series smartphone','device');add(p,`Nebula M${n} Pro`,'Smartphones',70000+(n-1)*6000,'Premium performance variant','device');add(p,`Nebula M${n} Max`,'Smartphones',120000+(n-1)*8000,'Maximum-performance flagship','device');add(p,`Nebula M${n} Elite`,'Smartphones',150000+(n-1)*9000,'Elite flagship variant','device');
     add(p,`Nebula A${n}`,'Smartphones',20000+(n-1)*2000,'Balanced mid-range smartphone','device');add(p,`Nebula A${n} Pro`,'Smartphones',30000+(n-1)*2500,'Mid-range enhanced variant','device');add(p,`Nebula A${n} Max`,'Smartphones',40000+(n-1)*3000,'Upper mid-range variant','device');
     add(p,`Nebula B${n}`,'Smartphones',12000+(n-1)*1000,'Budget smartphone','device');add(p,`Nebula B${n} Pro`,'Smartphones',16000+(n-1)*1000,'Budget smartphone with expanded memory','device');
     add(p,`Nebula Z${n} Fold`,'Fold & Flip',100000+(n-1)*10000,'Premium foldable device','device');add(p,`Nebula Z${n} Flip`,'Fold & Flip',90000+(n-1)*8000,'Compact flip device','device');
@@ -114,21 +114,29 @@ function categoryButtons(){ $('categoryRow').innerHTML=categoryNames.map(c=>`<bu
 function nextSaleText(){const m=date.month;if(m<=3)return {name:'New Year Sale',when:'Active now · through 31 March',percent:35};if(m>=8&&m<=10)return {name:'Autumn Sale',when:'Active now · through 31 October',percent:20};if(m===11)return {name:'Rebirth Era Sale',when:'Active now · through 30 November',percent:65};if(m>=4&&m<=7)return {name:'Autumn Sale',when:'Coming 1 August',percent:20};return {name:'New Year Sale',when:'Coming 1 January',percent:35};}
 function renderOffers(){const next=nextSaleText();const offers=[{name:'New Year Sale',percent:35,period:'January – March',description:'35% off catalogue products.'},{name:'Autumn Sale',percent:20,period:'August – October',description:'20% off catalogue products.'},{name:'Rebirth Era Sale',percent:65,period:'November',description:'65% off for Metxon founding month; 15 November is Founding Day.'}];$('offerGrid').innerHTML=offers.map(o=>`<div class="offer"><strong>${o.name} ${SALE.name===o.name?'<span class="badge">Active</span>':''}</strong><div class="percent">${o.percent}% OFF</div><p><b>${o.period}</b></p><p class="muted">${o.description}</p></div>`).join('');$('heroSale').innerHTML=`<span class="sale-pill">${SALE.percent?SALE.percent+'% OFF · ':''}${safe(SALE.name)}</span><span class="sale-pill">${date.day} ${new Intl.DateTimeFormat('en-IN',{month:'long',timeZone:'Asia/Kolkata'}).format(new Date())} ${date.year}</span>`;}
 function launchItems(){
- const monthKey=date.year*12+date.month-1, cycle=Math.max(0,monthKey-(2026*12+9));
- const schedule=[
-  {category:'Smartphones',name:`Nebula M${deviceGeneration}`,icon:'📱',text:'Monthly smartphone release'},
-  {category:'Chips',name:`Enceladus M${mChip}`,icon:'⚡',text:'Monthly processor launch'},
-  {category:'Operating systems',name:`MetOS ${metOS}`,icon:'🌌',text:'Monthly operating-system release'},
-  {category:'Displays',name:`Rigel O${rigelO}`,icon:'🖥️',text:'Monthly display release'},
-  {category:'Cameras',name:`SKY M${skyM}`,icon:'📷',text:'Monthly camera release'},
-  {category:'Batteries',name:`Triton ${Math.min(99,50+cycle)}`,icon:'🔋',text:'Monthly battery release'},
-  {category:'Chargers',name:cycle%2===0?'MetCart 45W USB-C Charger':'MetCart 100W GaN Charger',icon:'🔌',text:'Monthly charging accessory'}
+ const monthKey=date.year*12+date.month-1, cycle=Math.max(1,monthKey-(2026*12+9)+1);
+ const nextGen=deviceGeneration+1, nextChip=mChip+1;
+ const queue=[
+  {name:`Nebula M${nextGen}`,icon:'📱',text:'New flagship smartphone'},
+  {name:`Nebula M${nextGen} Pro`,icon:'📱',text:'Flagship Pro release'},
+  {name:`Nebula M${nextGen} Elite`,icon:'📱',text:'Flagship Elite release'},
+  {name:`Nebula A${nextGen}`,icon:'📱',text:'Mid-range smartphone release'},
+  {name:`Nebula A${nextGen} Pro`,icon:'📱',text:'Mid-range Pro release'},
+  {name:`Nebula A${nextGen} Elite`,icon:'📱',text:'Mid-range Elite release'},
+  {name:`Nebula B${nextGen}`,icon:'📱',text:'Budget smartphone release'},
+  {name:`NebulaBook M${nextGen}`,icon:'💻',text:'Premium laptop release'},
+  {name:`NebulaTab M${nextGen}`,icon:'▣',text:'Premium tablet release'},
+  {name:`Enceladus M${nextChip}`,icon:'⚡',text:'New Enceladus processor launch'},
+  {name:`MetOS ${metOS+1}`,icon:'🌌',text:'New MetOS licence release'},
+  {name:`Rigel O${rigelO+1}`,icon:'🖥️',text:'New OLED display release'},
+  {name:`SKY M${skyM+1}`,icon:'📷',text:'New camera module release'},
+  {name:`Triton ${Math.min(99,51+cycle)}`,icon:'🔋',text:'New battery component release'},
+  {name:cycle%2===1?'MetCart 45W USB-C Charger':'MetCart 100W GaN Charger',icon:'🔌',text:'Charging accessory release'}
  ];
- const chosen=schedule[cycle%schedule.length];
- const launchName=chosen.name;
- const found=products.find(p=>p.name===launchName);
+ const chosen=queue[(cycle-1)%queue.length];
+ const found=products.find(p=>p.name===chosen.name);
  const price=found?found.price:0;
- $('launchList').innerHTML=`<div class="launch"><span class="emoji">${chosen.icon}</span><b>${safe(launchName)}</b><span class="small">${safe(chosen.text)} · ${money(price)}</span><p class="small">Scheduled launch: ${safe(new Intl.DateTimeFormat('en-IN',{month:'long',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date()))}</p></div>`;
+ $('launchList').innerHTML=`<div class="launch"><span class="emoji">${chosen.icon}</span><b>${safe(chosen.name)}</b><span class="small">${safe(chosen.text)} · ${price?money(price):'Scheduled catalogue release'}</span><p class="small">Scheduled launch: ${safe(new Intl.DateTimeFormat('en-IN',{month:'long',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(date.year,date.month,1)))}</p></div>`;
 }
 function productSearch(p){return norm([p.name,p.category,p.description,p.architecture,p.display,p.cameraTier].join(' ')).includes(norm(query));}
 function renderProducts(){let arr=products.filter(p=>(currentCategory==='All'||p.category===currentCategory)&&productSearch(p));const sort=$('sortSelect').value;if(sort==='low')arr.sort((a,b)=>a.price-b.price);else if(sort==='high')arr.sort((a,b)=>b.price-a.price);else if(sort==='name')arr.sort((a,b)=>a.name.localeCompare(b.name));else arr.sort((a,b)=>Number(b.isNew||0)-Number(a.isNew||0)||a.name.localeCompare(b.name));$('catalogTitle').textContent=currentCategory==='All'?'All products':currentCategory;$('catalogCaption').textContent=query?`Search results for “${query}”`:`${SALE.percent?SALE.percent+'% offer applied · ':''}Click any product to view specifications and reviews.`;$('productCount').textContent=`${arr.length} product${arr.length===1?'':'s'}`;if(!arr.length){$('productGrid').innerHTML='<div class="empty">No products match this search. Try a different name or category.</div>';return;}$('productGrid').innerHTML=arr.map(p=>{const base=Number(p.basePrice??p.price),sold=Number(soldMap[p.name]||0);const stockTag=p.kind==='software'?'Digital licence':p.kind==='chip'?'Component':p.kind==='accessory'?'Accessory':p.isNew?'New launch':p.category;return `<article class="product" data-product="${safe(p.name)}"><button class="product-art" style="border:0;width:100%" data-detail="${safe(p.name)}" aria-label="Specifications for ${safe(p.name)}">${iconForProduct(p)}</button><div class="productbody"><div class="tagrow"><span class="tag">${safe(stockTag)}</span>${SALE.percent?`<span class="tag sale">-${SALE.percent}%</span>`:''}</div><h3>${safe(p.name)}</h3><p class="desc">${safe(p.description)}</p><div class="price"><strong>${money(p.price)}</strong>${SALE.percent?`<span class="was">${money(base)}</span><span class="save">Save ${money(base-p.price)}</span>`:''}</div><div class="productmeta"><span>★ ${p.rating?Number(p.rating).toFixed(1):'New'} (${Number(p.reviewCount||0)})</span><span>${sold.toLocaleString('en-IN')} bought</span></div><div class="productbuttons"><button class="secondary" data-detail="${safe(p.name)}">Specifications</button><button class="primary" data-add="${safe(p.name)}">Add to cart</button></div></div></article>`;}).join('');}
