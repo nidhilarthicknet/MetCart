@@ -96,8 +96,8 @@ function buildCatalog(){
  for(let n=5;n<=rigelA;n++)add(p,`Rigel A${n}`,'Displays',n*1000+3000,`AMOLED panel · Rigel A${n}`,'component',{display:'AMOLED'});
  for(let n=6;n<=rigelO;n++)add(p,`Rigel O${n}`,'Displays',n*1000+9000,`OLED panel · Rigel O${n}`,'component',{display:'OLED'});
  for(let n=1;n<=99;n++)add(p,`Triton ${n}`,'Batteries',n*100,`Triton battery · ${n*100} mAh`,'component',{capacityMah:n*100});
- for(let n=6;n<=skyA;n++)add(p,`SKY A${n}`,'Cameras',n*1000,`SKY budget/mid camera module · A${n}`,'component',{cameraTier:'A'});
- for(let n=12;n<=skyM;n++)add(p,`SKY M${n}`,'Cameras',15000+(n-12)*1000,`SKY premium camera module · M${n}`,'component',{cameraTier:'M'});
+ for(let n=1;n<=skyA;n++)add(p,`SKY A${n}`,'Cameras',n*1000,`SKY budget/mid camera module · A${n}`,'component',{cameraTier:'A'});
+ for(let n=5;n<=skyM;n++)add(p,`SKY M${n}`,'Cameras',15000+(n-12)*1000,`SKY premium camera module · M${n}`,'component',{cameraTier:'M'});
  add(p,'MetCart 45W USB-C Charger','Chargers',1499,'45 W USB-C fast charger · selectable add-on','accessory');add(p,'MetCart 100W GaN Charger','Chargers',2999,'100 W GaN multi-device charger · selectable add-on','accessory');
  add(p,'MetCart 20W Solar Charger','Chargers',300,'20 W solar charger with integrated mini solar panel','accessory',{powerW:20,technology:'Solar'});add(p,'MetCart 45W Magnetic Charger','Chargers',4500,'45 W magnetic charging system; no wall-plug requirement for its magnetic solar setup','accessory',{powerW:45,technology:'Magnetic'});add(p,'MetCart 100W Static Charger','Chargers',14000,'100 W static charger','accessory',{powerW:100,technology:'Static'});
  for(let n=2;n<=deviceGeneration+1;n++)add(p,`MetCart Accessory ${n}`,'Accessories',500+n*100,`Monthly accessory collection ${n}`,'accessory');
