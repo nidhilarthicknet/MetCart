@@ -34,8 +34,20 @@ jobs:
           }
           echo "MetCart index.html found."
 
-      - name: Configure GitHub Pages
+      - name: Verify Pages setup token
+        env:
+          PAGES_TOKEN: ${{ secrets.PAGES_TOKEN }}
+        run: |
+          if [ -z "$PAGES_TOKEN" ]; then
+            echo "::error::Missing repository Actions secret PAGES_TOKEN. Add a fine-grained token restricted to this repository with Pages read/write permission, then rerun this workflow."
+            exit 1
+          fi
+
+      - name: Configure and enable GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          token: ${{ secrets.PAGES_TOKEN }}
+          enablement: true
 
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
