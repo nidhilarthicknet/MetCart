@@ -142,4 +142,5 @@ const authObserver=async()=>{const {data}=await supabase.auth.getSession();if(da
 renderAll();Promise.all([syncCatalog(),refreshReviewStats()]).then(renderAll);authObserver();
 })();
 </script>
-</body></html>
+</body>
+</html>
