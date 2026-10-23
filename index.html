@@ -40,7 +40,7 @@ const AUTH_FUNCTION=SUPABASE_URL+'/functions/v1/metxon-auth-v2';
 const CATALOG_FUNCTION='metcart-catalog-sync';
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=id=>document.getElementById(id);
-const money=n=>{const jp=Number(n||0)/100;const c=(window.localStorage.getItem('metcartCurrency')||'JP');if(c==='INR')return '₹'+(jp*100).toLocaleString('en-IN',{maximumFractionDigits:2});if(c==='USD')return '$'+(jp*1.2).toLocaleString('en-US',{maximumFractionDigits:2});return 'π'+jp.toLocaleString('en-IN',{maximumFractionDigits:2});};
+const money=n=>'π'+(Number(n||0)/100).toLocaleString('en-IN',{maximumFractionDigits:2});
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').trim().toLowerCase();
 const monthDate=()=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));return {year:+o.year,month:+o.month,day:+o.day};};
