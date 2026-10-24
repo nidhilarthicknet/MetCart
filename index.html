@@ -108,7 +108,7 @@ function buildCatalog(){
  return p.map(item=>({...item,price:salePrice(item.basePrice),discountPercent:SALE.percent,icon:iconFor(item.category)}));
 }
 const categoryNames=['All','Smartphones','Fold & Flip','Laptops','Development laptops','Tablets','Watches','Processors','Chips','Operating systems','Displays','Batteries','Cameras','Chargers','Accessories','Memory','Storage','Security software','Nebula AI','Memberships','Configuration components'];
-let products=buildCatalog();let priceMap=new Map(products.map(p=>[p.name,p.price]));let soldMap={};let categoryProductCache=new Map();let visibleProductLimit=48;let renderVersion=0;const requestedCategory=new URLSearchParams(window.location.search).get('category');let currentCategory=requestedCategory&&categoryNames.includes(requestedCategory)?requestedCategory:'All';let query='';let session=null;let profile=null;let metailIDs=[];let cart=[];let activeProduct=null;let syncPromise=null;
+let products=retainedByFamily(buildCatalog());let priceMap=new Map(products.map(p=>[p.name,p.price]));let soldMap={};let categoryProductCache=new Map();let visibleProductLimit=48;let renderVersion=0;const requestedCategory=new URLSearchParams(window.location.search).get('category');let currentCategory=requestedCategory&&categoryNames.includes(requestedCategory)?requestedCategory:'All';let query='';let session=null;let profile=null;let metailIDs=[];let cart=[];let activeProduct=null;let syncPromise=null;
 function applyServerCatalog(data){if(!data||!Array.isArray(data.products))return;const localByName=new Map(products.map(p=>[p.name,p]));products=data.products.filter(x=>x&&x.name&&Number.isFinite(Number(x.price))).map(x=>{const local=localByName.get(x.name)||{};const category=x.category||local.category||'Products';return {...local,...x,name:x.name,category,basePrice:Number(x.base_price??x.price??local.basePrice??0),price:Number(x.price),description:x.description||local.description||'Metxon catalogue product',kind:x.kind||local.kind||'hardware',icon:local.icon||iconFor(category)};});priceMap=new Map(products.map(p=>[p.name,p.price]));soldMap=data.sold_counts||{};categoryProductCache.clear();}
 async function syncCatalog(){if(syncPromise)return syncPromise;syncPromise=(async()=>{try{const {data,error}=await supabase.functions.invoke(CATALOG_FUNCTION);if(error)throw error;applyServerCatalog(data);return data;}catch(e){console.warn('MetCart catalogue sync:',e.message||e);return null;}finally{syncPromise=null;}})();return syncPromise;}
 async function authRequest(action,payload){const res=await fetch(AUTH_FUNCTION,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok||data.error)throw new Error(data.error||'Metxon sign-in failed.');return data;}
@@ -128,7 +128,7 @@ function launchItems(){
   {category:'Laptops',name:`NebulaBook M${gen}`,icon:'💻',text:'Monthly laptop launch'},
   {category:'Development laptops',name:`NebulaBook D${gen}`,icon:'🧑‍💻',text:'Monthly developer-laptop launch'},
   {category:'Tablets',name:`NebulaTab M${gen}`,icon:'▣',text:'Monthly tablet launch'},
-  {category:'Watches',name:`NebulaWatch M${gen}`,icon:'⌚',text:'Monthly wearable launch'},
+  {category:'Watches',name:`Nebula Watch ${4+monthIndex}`,icon:'⌚',text:'Monthly wearable launch'},
   {category:'Chips',name:`Enceladus M${chip}`,icon:'⚡',text:'Monthly processor launch'},
   {category:'Operating systems',name:`MetOS ${os}`,icon:'🌌',text:'Monthly operating-system launch'},
   {category:'Displays',name:`Rigel O${disp}`,icon:'🖥️',text:'Monthly display launch'},
@@ -144,9 +144,11 @@ function productSearch(p){return norm([p.name,p.category,p.description,p.archite
 function retainedByFamily(list){
  const familyPatterns=[
   /^(Nebula M)(\d+)/i,/^(Nebula A)(\d+)/i,/^(Nebula B)(\d+)/i,/^(Nebula Z)(\d+)/i,
-  /^(NebulaBook M)(\d+)/i,/^(NebulaBook D)(\d+)/i,/^(NebulaTab M)(\d+)/i,/^(NebulaWatch M)(\d+)/i,
-  /^(Enceladus M)\s*(\d+)/i,/^(MetOS )([\d.]+)/i,/^(Rigel O)(\d+)/i,/^(SKY M)(\d+)/i,
-  /^(Triton )([\d]+)/i,/^(MetCart Accessory )([\d]+)/i
+  /^(NebulaBook M)(\d+)/i,/^(NebulaBook A)(\d+)/i,/^(NebulaBook B)(\d+)/i,/^(NebulaBook D)(\d+)/i,
+  /^(NebulaTab M)(\d+)/i,/^(NebulaTab A)(\d+)/i,/^(NebulaTab B)(\d+)/i,/^(Nebula Watch )(\d+)/i,
+  /^(APU )(\d+)/i,/^(Tethys )(\d+)/i,/^(Enceladus M)\s*(\d+)/i,/^(Enceladus A)\s*(\d+)/i,
+  /^(MetOS )([\d.]+)/i,/^(Rigel A)(\d+)/i,/^(Rigel O)(\d+)/i,/^(SKY A)(\d+)/i,/^(SKY M)(\d+)/i,
+  /^(MetCart Accessory )(\d+)/i
  ];
  const newest=new Map();
  for(const p of list){for(const re of familyPatterns){const m=p.name.match(re);if(m){const key=m[1].toLowerCase();const n=Number(m[2]);newest.set(key,Math.max(newest.get(key)||0,n));break;}}}
