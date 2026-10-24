@@ -83,7 +83,7 @@ function buildCatalog(){
  const messierGalaxy=new Set([31,32,33,49,51,58,59,60,61,63,64,65,66,74,77,81,82,83,84,86,87,88,89,90,91,94,95,96,98,99,100,101,102,104]);
  for(let n=Math.max(20,mChip-14);n<=mChip;n++){
    const architecture=n===20?'Trifid Nebula':n===31?'Andromeda Galaxy':n===32?'Andromeda satellite galaxy':n===33?'Triangulum Galaxy':messierGalaxy.has(n)?'Messier Galaxy':'Enceladus M series';
-   add(p,`Enceladus M${n}`,'Chips',n*100,`${architecture} · Enceladus M${n}`,'chip',{architecture});
+   add(p,`Enceladus M${n}`,'Chips',n>=31?65000+(n-31)*5000:20000+(n-20)*4000,`${architecture} · Enceladus M${n}`,'chip',{architecture});
    if(messierGalaxy.has(n)){
      add(p,`Enceladus M${n} Pro`,'Chips',n*100+1000,`${architecture} · Pro performance`,'chip',{architecture,variant:'Pro'});
      add(p,`Enceladus M${n} Max`,'Chips',n*100+2000,`${architecture} · Max performance`,'chip',{architecture,variant:'Max'});
