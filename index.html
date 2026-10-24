@@ -165,7 +165,7 @@ function renderProducts(){
  $('productCount').textContent=`${arr.length} product${arr.length===1?'':'s'}`;
  const visible=arr.slice(0,visibleProductLimit);
  if(!visible.length){$('productGrid').innerHTML='<div class="empty">No products match this search. Try a different name or category.</div>';const old=$('loadMoreProducts');if(old)old.hidden=true;return;}
- $('productGrid').innerHTML=visible.map(productCardHtml).join('');iv></article>`;}).join('');
+ $('productGrid').innerHTML=visible.map(productCardHtml).join('');
  let more=$('loadMoreProducts');
  if(arr.length>visibleProductLimit){if(!more){more=document.createElement('button');more.id='loadMoreProducts';more.className='secondary';more.style.cssText='display:block;margin:20px auto;width:min(100%,320px)';more.textContent='Load more products';$('productGrid').after(more);more.onclick=()=>{const start=visibleProductLimit;const end=Math.min(start+48,arr.length);if(start>=end){more.hidden=true;return;}const holder=document.createElement('div');holder.innerHTML=arr.slice(start,end).map(productCardHtml).join('');const fragment=document.createDocumentFragment();while(holder.firstElementChild)fragment.appendChild(holder.firstElementChild);$('productGrid').appendChild(fragment);visibleProductLimit=end;more.textContent=visibleProductLimit<arr.length?'Load 48 more products ('+(arr.length-visibleProductLimit)+' remaining)':'All products loaded';more.hidden=visibleProductLimit>=arr.length;};}more.textContent=`Load 48 more products (${arr.length-visibleProductLimit} remaining)`;more.hidden=false;}else if(more)more.hidden=true;
 }
