@@ -42,7 +42,8 @@ const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KE
 const $=id=>document.getElementById(id);
 const currencyPreference=()=>{const c=localStorage.getItem('metcartCurrency')||'JP';return ['JP','INR','USD'].includes(c)?c:'JP';};
 const currencyLabel=()=>({JP:'JP (π)',INR:'INR (₹)',USD:'USD ($)'})[currencyPreference()];
-const money=n=>{const inr=Number(n||0);const c=currencyPreference();if(c==='INR')return '₹'+inr.toLocaleString('en-IN',{maximumFractionDigits:2});if(c==='USD')return '
+const money=n=>{const inr=Number(n||0);const c=currencyPreference();if(c==='INR')return '₹'+inr.toLocaleString('en-IN',{maximumFractionDigits:2});if(c==='USD')return '$'+(inr*0.012).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return 'π'+(inr/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});};
+const jpMoney=n=>'π'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').trim().toLowerCase();
 const monthDate=()=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));return {year:+o.year,month:+o.month,day:+o.day};};
