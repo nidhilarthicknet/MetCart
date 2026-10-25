@@ -35,8 +35,8 @@ const INR_PRICE=500000;
 function currencyPreference(){const c=localStorage.getItem('metcartCurrency')||'JP';return ['JP','INR','USD'].includes(c)?c:'JP';}
 function displayPrice(inr){const c=currencyPreference(),n=Number(inr||0);if(c==='INR')return '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2});if(c==='USD')return String.fromCharCode(36)+(n*.012).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return 'π'+(n/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDate(v){return v?new Date(v).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—';}
-function activeSubscriptions(){const now=Date.now();return careSubs.filter(s=>new Date(s.expires_at).getTime()>now).sort((a,b)=>(a.plan_code==='care_ultra'?0:1)-(b.plan_code==='care_ultra'?0:1)||new Date(b.expires_at)-new Date(a.expires_at));}
-function activePlanText(){const a=activeSubscriptions();if(!a.length)return '<div class="status warning"><b>No active Care coverage.</b> You can still send a support question, but it is not covered by a Care plan.</div>';const s=a[0];return '<div class="status"><b>Active coverage: '+(s.plan_code==='care_ultra'?'Metxon Care Ultra':'Metxon Care+')+'</b><br>Valid until '+safe(fmtDate(s.expires_at))+'</div>';}
+function activeSubscriptions(){const active=careSubs.filter(s=>new Date(s.expires_at).getTime()>Date.now()).sort((a,b)=>new Date(b.expires_at)-new Date(a.expires_at));const latest=new Map();for(const item of active)if(!latest.has(item.plan_code))latest.set(item.plan_code,item);return [...latest.values()].sort((a,b)=>(a.plan_code==='care_ultra'?0:1)-(b.plan_code==='care_ultra'?0:1));}
+function activePlanText(){const a=activeSubscriptions();if(!a.length)return '<div class="status warning"><b>No active Care coverage.</b> You can still send a support question, but it is not covered by a Care plan.</div>';return '<div class="status"><b>Active coverage</b><br>'+a.map(item=>(item.plan_code==='care_ultra'?'Metxon Care Ultra':'Metxon Care+')+' · valid until '+safe(fmtDate(item.expires_at))).join('<br>')+'</div>';}
 async function refreshPlans(){const r=await db.from('metxon_care_subscriptions').select('id,plan_code,price,started_at,expires_at').eq('user_id',profile.id).order('expires_at',{ascending:false});if(r.error)throw r.error;careSubs=r.data||[];activePlan=activeSubscriptions()[0]||null;renderPlans();}
 function renderPlans(){
  const box=$('carePlans');box.classList.remove('hidden');
@@ -126,11 +126,15 @@ async function sendOwnerReply(btn){
   area.value='';await renderOwnerDesk();
  }catch(e){msg.className='status error';msg.textContent=e.message||'Reply failed.';btn.disabled=false;}
 }
+function renderPublicPlans(){
+ const box=$('carePlans');box.classList.remove('hidden');
+ box.innerHTML='<h2>Coverage plans</h2><p class="muted">Choose a plan to cover eligible Metxon products. Sign in to purchase and view active coverage.</p><div class="plans"><article class="plan"><span class="pill">3-MONTH COVER</span><h3 style="margin:12px 0 0">Metxon Care+</h3><div class="price">'+safe(displayPrice(INR_PRICE))+'</div><p class="muted">INR list price ₹500,000 · π5,000 JP per 3 months</p><ul><li>Covers Metxon devices, software, accessories and other Metxon products for factory defects and manufacturing problems.</li><li>Customer-caused damage is excluded.</li><li>Renew every 3 months.</li></ul><a class="primary" style="display:block;text-align:center;margin-top:auto;padding:11px 14px;border-radius:10px" href="index.html">Sign in to purchase</a></article><article class="plan"><span class="pill">MONTHLY COVER</span><h3 style="margin:12px 0 0">Metxon Care Ultra</h3><div class="price">'+safe(displayPrice(INR_PRICE))+'</div><p class="muted">INR list price ₹500,000 · π5,000 JP per month</p><ul><li>Covers factory defects and customer-caused damage across Metxon devices, software, accessories and other Metxon products.</li><li>Active for one month per purchase.</li><li>Renew monthly.</li></ul><a class="primary" style="display:block;text-align:center;margin-top:auto;padding:11px 14px;border-radius:10px" href="index.html">Sign in to purchase</a></article></div>';
+}
 async function main(){
  const sn=$('sessionNotice');
  const {data,error}=await db.auth.getSession();
  if(error)throw error;session=data.session;
- if(!session){sn.innerHTML='<h2>Sign in required</h2><p>Open MetCart or Metxon and sign in first. Your account session is shared with this page.</p><a class="primary" style="display:inline-block;padding:10px 14px;border-radius:10px" href="index.html">Go to MetCart sign in</a>';return;}
+ if(!session){sn.innerHTML='<h2>Welcome to Metxon Care</h2><p>Browse coverage plans below. Sign in through MetCart or Metxon to purchase a plan, view your coverage and send a support request.</p><a class="primary" style="display:inline-block;padding:10px 14px;border-radius:10px" href="index.html">Go to MetCart sign in</a>';renderPublicPlans();return;}
  const pr=await db.from('profiles').select('id,username,display_name,role,jp_balance').eq('id',session.user.id).maybeSingle();
  if(pr.error)throw pr.error;if(!pr.data)throw new Error('Your Metxon profile could not be found.');profile=pr.data;
  const ma=await db.from('metail_accounts').select('id,username,display_name').eq('user_id',profile.id).order('created_at',{ascending:true});
