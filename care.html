@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b59">
+<title>Metxon Care · MetCart</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#102b59;--blue:#315d9b;--cyan:#53c8db;--ink:#172334;--muted:#65758b;--line:#e0e7f0;--bg:#f4f7fb;--green:#187a56;--red:#b83c3c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer;border-radius:10px;padding:11px 14px;border:1px solid var(--line);font-weight:800}.primary{background:var(--navy);color:white;border-color:var(--navy)}.secondary{background:white;color:var(--navy)}button:disabled{opacity:.55;cursor:wait}.shell{max-width:1120px;margin:auto;padding:18px}.topbar{background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.topinner{max-width:1120px;margin:auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:950;letter-spacing:1.8px;color:var(--navy)}.brand small{display:block;font-size:.65rem;letter-spacing:1px;color:#287a87}.navlinks{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.navlinks a{padding:8px 10px;border-radius:9px;color:#344b6a;font-weight:750}.hero{background:linear-gradient(120deg,#102b59,#24548d 60%,#40b5c7);color:white;padding:clamp(22px,5vw,46px);border-radius:22px;margin:8px 0 18px}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:.75rem;font-weight:850;color:#b5f3ff}.hero h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.04;margin:8px 0 14px}.hero p{color:#e3efff;max-width:750px;margin:0}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 6px 22px #1830500a;min-width:0}.panel h2,.panel h3{color:var(--navy);margin-top:0}.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.plan{border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0;display:flex;flex-direction:column}.plan.featured{border:2px solid #36a4b8;background:linear-gradient(160deg,#f4fdff,#fff 60%)}.pill{display:inline-flex;border-radius:99px;background:#e9f4ff;color:#2f5989;padding:4px 9px;font-size:.75rem;font-weight:850;align-self:flex-start}.price{font-size:clamp(1.65rem,3vw,2.2rem);font-weight:950;color:var(--navy);margin:10px 0 0}.muted{color:var(--muted);font-size:.9rem}.plan ul{padding-left:20px;margin:10px 0 18px}.plan button{width:100%;margin-top:auto}.status{padding:12px 14px;border-radius:12px;background:#eafaf1;color:#146843;margin:10px 0}.warning{background:#fff6e6;color:#78510d}.error{background:#fff0f0;color:#952d2d}.success{background:#eafaf1;color:#146843}.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-weight:800;font-size:.88rem;color:#334864}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd8e7;border-radius:10px;padding:12px;background:white;color:var(--ink);min-width:0}.field textarea{min-height:115px;resize:vertical}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tickets{display:grid;gap:12px}.ticket{border:1px solid var(--line);border-radius:13px;padding:14px;min-width:0}.ticket-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.message{padding:10px 0;border-top:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}.message b{color:var(--navy)}.ticket textarea{min-height:80px}.tag{font-size:.74rem;padding:4px 8px;border-radius:99px;background:#edf2f8;color:#42536b;font-weight:800}.stack{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.hidden{display:none!important}.footer{text-align:center;color:var(--muted);font-size:.82rem;padding:25px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.small{font-size:.8rem}@media(max-width:680px){.shell{padding:12px}.plans,.formgrid{grid-template-columns:1fr}.panel{padding:15px}.topinner{padding:10px 12px}.navlinks{gap:2px}.navlinks a{padding:7px 8px;font-size:.83rem}.hero{border-radius:16px}.plan{padding:15px}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topinner"><a class="brand" href="index.html">METCART<small>A METXON PRODUCT</small></a><nav class="navlinks"><a href="index.html">Shop</a><a href="settings.html">Settings</a><a href="care.html" aria-current="page">Metxon Care</a></nav></div></header>
+<main class="shell">
+<section class="hero"><div class="eyebrow">Repair · Support · Coverage</div><h1>Metxon Care</h1><p>Get help with your devices, software, accessories, and other Metxon products. Describe the problem and the Metxon team will reply in this request thread and, when available, through your linked Met-Ail inbox.</p></section>
+<div id="sessionNotice" class="panel">Checking your Metxon session…</div>
+<div id="carePlans" class="panel hidden"></div>
+<div id="careRequestPanel" class="panel hidden"></div>
+<div id="myTicketsPanel" class="panel hidden"></div>
+<div id="ownerDeskPanel" class="panel hidden"></div>
+</main>
+<div class="footer">Coverage applies to eligible Metxon products. Keep your request number for follow-up.</div>
+<script>
+(() => {
+'use strict';
+const SUPABASE_URL='https://brahcvovidgjjzpkxsms.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_FFhWnTcsx3JflSHkIDaSaQ_Mwhh83up';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);
+const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let session=null, profile=null, mailAccounts=[], careSubs=[], activePlan=null;
+const INR_PRICE=500000;
+function fmtDate(v){return v?new Date(v).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—';}
+function activeSubscriptions(){const now=Date.now();return careSubs.filter(s=>new Date(s.expires_at).getTime()>now).sort((a,b)=>(a.plan_code==='care_ultra'?0:1)-(b.plan_code==='care_ultra'?0:1)||new Date(b.expires_at)-new Date(a.expires_at));}
+function activePlanText(){const a=activeSubscriptions();if(!a.length)return '<div class="status warning"><b>No active Care coverage.</b> You can still send a support question, but it is not covered by a Care plan.</div>';const s=a[0];return '<div class="status"><b>Active coverage: '+(s.plan_code==='care_ultra'?'Metxon Care Ultra':'Metxon Care+')+'</b><br>Valid until '+safe(fmtDate(s.expires_at))+'</div>';}
+async function refreshPlans(){const r=await db.from('metxon_care_subscriptions').select('id,plan_code,price,started_at,expires_at').eq('user_id',profile.id).order('expires_at',{ascending:false});if(r.error)throw r.error;careSubs=r.data||[];activePlan=activeSubscriptions()[0]||null;renderPlans();}
+function renderPlans(){
+ const box=$('carePlans');box.classList.remove('hidden');
+ const active=activePlanText();
+ const plus=careSubs.some(s=>s.plan_code==='care_plus'&&new Date(s.expires_at).getTime()>Date.now());
+ const ultra=careSubs.some(s=>s.plan_code==='care_ultra'&&new Date(s.expires_at).getTime()>Date.now());
+ box.innerHTML='<div class="toolbar"><div><h2 style="margin-bottom:4px">Coverage plans</h2><p class="muted" style="margin-top:0">Plans are activated only after Supabase confirms payment. Renewal purchases extend the expiry date; there are no silent automatic charges.</p></div><span class="tag">JP wallet billing</span></div>'+active+
+ '<div class="plans"><article class="plan '+(plus?'featured':'')+'"><span class="pill">3-MONTH COVER</span><h3 style="margin:12px 0 0">Metxon Care+</h3><div class="price">₹500,000</div><p class="muted">For 3 months · equivalent wallet debit π5,000 JP</p><ul><li>Covers all eligible devices, software and other Metxon products for factory defects or manufacturing problems.</li><li>Does not cover damage caused by the customer.</li><li>Renew every 3 months to keep coverage active.</li></ul><button class="primary" data-buy-plan="care_plus">'+(plus?'Renew Care+':'Buy Care+')+'</button></article>'+
+ '<article class="plan '+(ultra?'featured':'')+'"><span class="pill">MONTHLY COVER</span><h3 style="margin:12px 0 0">Metxon Care Ultra</h3><div class="price">₹500,000</div><p class="muted">Per month · equivalent wallet debit π5,000 JP</p><ul><li>Covers eligible factory defects and customer-caused damage across devices, software and other Metxon products.</li><li>Active for one month per purchase.</li><li>Renew monthly to keep coverage active.</li></ul><button class="primary" data-buy-plan="care_ultra">'+(ultra?'Renew Care Ultra':'Buy Care Ultra')+'</button></article></div><p class="muted small">Price and coverage term are verified on the server. ₹100 = π1 JP. Renewal happens only after you press the button and confirm the purchase.</p>';
+ box.querySelectorAll('[data-buy-plan]').forEach(btn=>btn.addEventListener('click',async()=>{
+  const code=btn.dataset.buyPlan, name=code==='care_plus'?'Metxon Care+':'Metxon Care Ultra';
+  if(!confirm('Purchase '+name+' for ₹500,000 (π5,000 JP) '+(code==='care_plus'?'for 3 months':'for 1 month')+'?'))return;
+  btn.disabled=true;const label=btn.textContent;btn.textContent='Processing payment…';
+  try{const result=await db.rpc('metxon_buy_care_plan',{p_plan_code:code,p_plan_price:INR_PRICE});if(result.error)throw result.error;if(!result.data?.success)throw new Error('Supabase did not confirm the plan purchase.');const p=await db.from('profiles').select('jp_balance').eq('id',profile.id).maybeSingle();if(!p.error&&p.data)profile.jp_balance=p.data.jp_balance;await refreshPlans();const banner=$('planPurchaseNotice');if(banner){banner.className='status';banner.textContent=name+' activated until '+fmtDate(result.data.expires_at)+'. Debited π5,000 JP.';}renderRequestPanel();}
+  catch(e){const msg=$('planPurchaseNotice');if(msg){msg.className='status error';msg.textContent=e.message||'Purchase failed. Your balance was not changed unless Supabase confirms the transaction.';}btn.disabled=false;btn.textContent=label;}
+ }));
+}
+function coverageForType(type){const plan=activeSubscriptions()[0];if(!plan)return {covered:false,label:'No active coverage'};if(plan.plan_code==='care_ultra')return {covered:true,label:'Covered by Metxon Care Ultra'};if(type==='user_damage')return {covered:false,label:'Not covered by Care+ — customer-caused damage is excluded'};if(type==='factory_defect')return {covered:true,label:'Covered by Metxon Care+ for factory defects'};return {covered:false,label:'Care+ covers factory defects only; support can still review your question'};}
+async function loadMyTickets(){
+ const box=$('myTicketsPanel');box.classList.remove('hidden');box.innerHTML='<h2>Your support requests</h2><p class="muted">Loading…</p>';
+ const r=await db.from('metxon_care_tickets').select('id,subject,status,created_at,updated_at').eq('user_id',profile.id).order('created_at',{ascending:false}).limit(100);
+ if(r.error){box.innerHTML='<h2>Your support requests</h2><div class="status error">'+safe(r.error.message)+'</div>';return;}
+ const tickets=r.data||[];if(!tickets.length){box.innerHTML='<h2>Your support requests</h2><p class="muted">No requests yet.</p>';return;}
+ const ids=tickets.map(t=>t.id),mr=await db.from('metxon_care_messages').select('ticket_id,author_id,author_role,message,created_at').in('ticket_id',ids).order('created_at',{ascending:true});
+ if(mr.error){box.innerHTML='<h2>Your support requests</h2><div class="status error">'+safe(mr.error.message)+'</div>';return;}
+ box.innerHTML='<h2>Your support requests</h2><div class="tickets">'+tickets.map(t=>'<article class="ticket"><div class="ticket-head"><div><b>'+safe(t.subject)+'</b><div class="muted small">Ticket '+safe(t.id.slice(0,8))+' · '+safe(fmtDate(t.created_at))+'</div></div><span class="tag">'+safe(t.status)+'</span></div>'+mr.data.filter(m=>m.ticket_id===t.id).map(m=>'<div class="message"><b>'+(m.author_role==='support'?'Metxon Care':'You')+'</b> · <span class="muted small">'+safe(fmtDate(m.created_at))+'</span><div>'+safe(m.message)+'</div></div>').join('')+'</article>').join('')+'</div>';
+}
+function renderRequestPanel(){
+ const box=$('careRequestPanel');box.classList.remove('hidden');
+ const accounts=mailAccounts.length?'<label for="careMail">Reply-to Met-Ail ID (optional)</label><select id="careMail"><option value="">No Met-Ail inbox selected</option>'+mailAccounts.map(a=>'<option value="'+safe(a.username)+'@metail.com">'+safe(a.username)+'@metail.com</option>').join('')+'</select>':'<p class="muted">No Met-Ail ID is linked. You can still read replies here; create an ID to also receive replies in Met-Ail.</p>';
+ box.innerHTML='<h2>Contact Metxon Care</h2><p class="muted">Describe the problem and select the issue type. Your request goes to the Metxon Care queue and the owner receives a notification.</p>'+activePlanText()+
+ '<div id="planPurchaseNotice" class="status hidden"></div><div class="formgrid"><div class="field"><label for="careProduct">Product, device or software (optional)</label><input id="careProduct" maxlength="180" placeholder="e.g. Nebula phone, MetOS, an accessory"></div><div class="field"><label for="careIssueType">Problem type</label><select id="careIssueType"><option value="factory_defect">Factory defect / manufacturing problem</option><option value="user_damage">Damage caused by me</option><option value="software">Software / other question</option></select></div></div><div class="field"><label for="careSubject">Question title</label><input id="careSubject" maxlength="180" required placeholder="Briefly describe the issue"></div><div class="field"><label for="careMessage">Describe the problem</label><textarea id="careMessage" maxlength="5000" required placeholder="What happened? Include the product name and steps to reproduce the issue, if relevant."></textarea></div><div id="coverageCheck" class="status warning">Select the problem type to check coverage.</div><div class="field">'+accounts+'</div><button class="primary" id="submitCareTicket">Send to Metxon Care</button><div id="ticketSubmitMsg" class="status hidden" aria-live="polite"></div>';
+ $('careIssueType').addEventListener('change',()=>{const c=coverageForType($('careIssueType').value);const e=$('coverageCheck');e.className='status '+(c.covered?'':'warning');e.textContent=c.label;});
+ $('careIssueType').dispatchEvent(new Event('change'));
+ $('submitCareTicket').addEventListener('click',submitTicket);
+}
+async function sendOwnerNotification(subject,body){
+ const owner=await db.from('metail_accounts').select('username').ilike('username','jurassicpark').maybeSingle();
+ if(owner.error||!owner.data)return false;
+ const from=mailAccounts.find(a=>a.username.toLowerCase()==='jurassicpark')||mailAccounts[0];
+ if(!from)return false;
+ const r=await db.rpc('metxon_send_metail_message',{p_sender_username:from.username,p_recipient_username:owner.data.username,p_subject:subject,p_body:body});
+ return !r.error;
+}
+async function submitTicket(){
+ const btn=$('submitCareTicket'),msg=$('ticketSubmitMsg'),subject=$('careSubject').value.trim(),problem=$('careMessage').value.trim();
+ if(!subject||!problem){msg.className='status error';msg.textContent='Enter a question title and describe the problem.';msg.classList.remove('hidden');return;}
+ if(subject.length>180||problem.length>5000){msg.className='status error';msg.textContent='The title or problem description is too long.';msg.classList.remove('hidden');return;}
+ const type=$('careIssueType').value,covered=coverageForType(type),device=$('careProduct').value.trim(),replyTo=$('careMail')?.value||'',plan=activeSubscriptions()[0];
+ const details='Contact Met-Ail: '+(replyTo||'Not provided')+'\nProduct/device: '+(device||'Not specified')+'\nIssue type: '+type+'\nCoverage at time of request: '+(plan?(plan.plan_code==='care_ultra'?'Metxon Care Ultra':'Metxon Care+')+' until '+plan.expires_at:'No active plan')+'\nCoverage assessment: '+covered.label+'\nProblem: '+problem;
+ btn.disabled=true;btn.textContent='Sending…';
+ try{
+  const t=await db.from('metxon_care_tickets').insert({user_id:profile.id,subject,status:'waiting'}).select('id').single();if(t.error)throw t.error;
+  const m=await db.from('metxon_care_messages').insert({ticket_id:t.data.id,author_id:profile.id,author_role:'customer',message:details});
+  if(m.error)throw m.error;
+  const ticketMsg='A new Metxon Care request has arrived. Ticket: '+t.data.id+'\nCustomer: '+profile.username+'\nSubject: '+subject+'\nIssue type: '+type+'\nCoverage: '+covered.label+'\nProduct: '+(device||'Not specified')+'\nContact Met-Ail: '+(replyTo||'Not provided');
+  await sendOwnerNotification('New Metxon Care question',ticketMsg);
+  msg.className='status success';msg.textContent='Request sent. Ticket '+t.data.id.slice(0,8)+'. You can track replies below.';msg.classList.remove('hidden');
+  $('careSubject').value='';$('careMessage').value='';await loadMyTickets();
+ }catch(e){msg.className='status error';msg.textContent='Could not send request: '+(e.message||e);msg.classList.remove('hidden');}
+ finally{btn.disabled=false;btn.textContent='Send to Metxon Care';}
+}
+async function renderOwnerDesk(){
+ const box=$('ownerDeskPanel');box.classList.remove('hidden');box.innerHTML='<h2>Owner · Metxon Care questions</h2><p class="muted">Questions from customers appear here. Reply in the thread; the customer can read the reply here and, if they selected an address, in Met-Ail.</p><p class="muted">Loading queue…</p>';
+ const r=await db.from('metxon_care_tickets').select('id,user_id,subject,status,created_at,updated_at').order('created_at',{ascending:false}).limit(100);
+ if(r.error){box.innerHTML='<h2>Owner · Metxon Care questions</h2><div class="status error">'+safe(r.error.message)+'</div>';return;}
+ const tickets=r.data||[];if(!tickets.length){box.innerHTML='<h2>Owner · Metxon Care questions</h2><p>No questions yet.</p>';return;}
+ const ids=tickets.map(t=>t.id),mr=await db.from('metxon_care_messages').select('ticket_id,author_id,author_role,message,created_at').in('ticket_id',ids).order('created_at',{ascending:true});
+ if(mr.error){box.innerHTML='<h2>Owner · Metxon Care questions</h2><div class="status error">'+safe(mr.error.message)+'</div>';return;}
+ box.innerHTML='<h2>Owner · Metxon Care questions</h2><div class="tickets">'+tickets.map(t=>{
+  const thread=mr.data.filter(m=>m.ticket_id===t.id),first=thread.find(m=>m.author_role==='customer'),match=first&&first.message.match(/Contact Met-Ail:\s*([^\s]+)/i),email=match&&match[1]!=='Not provided'?match[1]:'';
+  return '<article class="ticket"><div class="ticket-head"><div><b>'+safe(t.subject)+'</b><div class="muted small">Ticket '+safe(t.id.slice(0,8))+' · '+safe(fmtDate(t.created_at))+' · Customer '+safe(t.user_id.slice(0,8))+'</div></div><span class="tag">'+safe(t.status)+'</span></div>'+thread.map(m=>'<div class="message"><b>'+(m.author_role==='support'?'Metxon Care / Owner':'Customer')+'</b> · <span class="muted small">'+safe(fmtDate(m.created_at))+'</span><div>'+safe(m.message)+'</div></div>').join('')+'<div class="field"><label for="reply-'+safe(t.id)+'">Reply to customer</label><textarea id="reply-'+safe(t.id)+'" data-reply="'+safe(t.id)+'" maxlength="5000" placeholder="Write a clear response…"></textarea></div><button class="primary" data-send-reply="'+safe(t.id)+'" data-customer-mail="'+safe(email)+'">Reply</button><div id="reply-status-'+safe(t.id)+'" class="status hidden" aria-live="polite"></div></article>';
+ }).join('')+'</div>';
+ box.querySelectorAll('[data-send-reply]').forEach(btn=>btn.addEventListener('click',()=>sendOwnerReply(btn)));
+}
+async function sendOwnerReply(btn){
+ const ticketId=btn.dataset.sendReply,area=$('reply-'+ticketId),msg=$('reply-status-'+ticketId),text=area.value.trim();
+ if(!text){msg.className='status error';msg.textContent='Write a reply first.';msg.classList.remove('hidden');return;}
+ btn.disabled=true;msg.className='status';msg.textContent='Saving reply…';msg.classList.remove('hidden');
+ try{
+  const ins=await db.from('metxon_care_messages').insert({ticket_id:ticketId,author_id:profile.id,author_role:'support',message:text});if(ins.error)throw ins.error;
+  const up=await db.from('metxon_care_tickets').update({status:'answered',updated_at:new Date().toISOString()}).eq('id',ticketId);if(up.error)throw up.error;
+  let mailResult=null;const email=btn.dataset.customerMail;
+  if(email&&/@metail\.com$/i.test(email)){
+   const ownerAccount=mailAccounts.find(a=>a.username.toLowerCase()==='jurassicpark')||mailAccounts[0];
+   if(ownerAccount){mailResult=await db.rpc('metxon_send_metail_message',{p_sender_username:ownerAccount.username,p_recipient_username:email.split('@')[0],p_subject:'Metxon Care · Reply to your question',p_body:text});}
+  }
+  msg.className='status success';msg.textContent=mailResult&&mailResult.error?'Reply saved. Met-Ail delivery failed: '+mailResult.error.message:'Reply saved; the customer can see it in their Care thread'+(email?' and Met-Ail.':'.');
+  area.value='';await renderOwnerDesk();
+ }catch(e){msg.className='status error';msg.textContent=e.message||'Reply failed.';btn.disabled=false;}
+}
+async function main(){
+ const sn=$('sessionNotice');
+ const {data,error}=await db.auth.getSession();
+ if(error)throw error;session=data.session;
+ if(!session){sn.innerHTML='<h2>Sign in required</h2><p>Open MetCart or Metxon and sign in first. Your account session is shared with this page.</p><a class="primary" style="display:inline-block;padding:10px 14px;border-radius:10px" href="index.html">Go to MetCart sign in</a>';return;}
+ const pr=await db.from('profiles').select('id,username,display_name,role,jp_balance').eq('id',session.user.id).maybeSingle();
+ if(pr.error)throw pr.error;if(!pr.data)throw new Error('Your Metxon profile could not be found.');profile=pr.data;
+ const ma=await db.from('metail_accounts').select('id,username,display_name').eq('user_id',profile.id).order('created_at',{ascending:true});
+ if(!ma.error)mailAccounts=ma.data||[];
+ sn.className='panel';sn.innerHTML='<div class="toolbar"><div><h2 style="margin:0">Welcome, '+safe(profile.display_name||profile.username)+'</h2><p class="muted" style="margin:4px 0 0">InstaPay balance: π'+Number(profile.jp_balance||0).toLocaleString('en-IN')+' JP</p></div><span class="tag">'+safe(profile.role||'member')+'</span></div>';
+ await refreshPlans();renderRequestPanel();await loadMyTickets();
+ if(['owner','admin'].includes(String(profile.role||'').toLowerCase()))await renderOwnerDesk();
+}
+main().catch(e=>{$('sessionNotice').className='panel status error';$('sessionNotice').textContent='Metxon Care could not load: '+(e.message||e);});
+})();
+</script>
+</body>
+</html>
