@@ -73,14 +73,6 @@ function renderRequestPanel(){
  $('careIssueType').dispatchEvent(new Event('change'));
  $('submitCareTicket').addEventListener('click',submitTicket);
 }
-async function sendOwnerNotification(subject,body){
- const owner=await db.from('metail_accounts').select('username').ilike('username','jurassicpark').maybeSingle();
- if(owner.error||!owner.data)return false;
- const from=mailAccounts.find(a=>a.username.toLowerCase()==='jurassicpark')||mailAccounts[0];
- if(!from)return false;
- const r=await db.rpc('metxon_send_metail_message',{p_sender_username:from.username,p_recipient_username:owner.data.username,p_subject:subject,p_body:body});
- return !r.error;
-}
 async function submitTicket(){
  const btn=$('submitCareTicket'),msg=$('ticketSubmitMsg'),subject=$('careSubject').value.trim(),problem=$('careMessage').value.trim();
  if(!subject||!problem){msg.className='status error';msg.textContent='Enter a question title and describe the problem.';msg.classList.remove('hidden');return;}
@@ -90,8 +82,6 @@ async function submitTicket(){
  btn.disabled=true;btn.textContent='Sending…';
  try{
   const t=await db.rpc('metxon_create_care_ticket',{p_subject:subject,p_message:details});if(t.error)throw t.error;if(!t.data?.success||!t.data.ticket_id)throw new Error('Supabase did not confirm the support request.');const ticketId=t.data.ticket_id;
-  const ticketMsg='A new Metxon Care request has arrived. Ticket: '+ticketId+'\nCustomer: '+profile.username+'\nSubject: '+subject+'\nIssue type: '+type+'\nCoverage: '+covered.label+'\nProduct: '+(device||'Not specified')+'\nContact Met-Ail: '+(replyTo||'Not provided');
-  await sendOwnerNotification('New Metxon Care question',ticketMsg);
   msg.className='status success';msg.textContent='Request sent. Ticket '+String(ticketId).slice(0,8)+'. You can track replies below.';msg.classList.remove('hidden');
   $('careSubject').value='';$('careMessage').value='';await loadMyTickets();
  }catch(e){msg.className='status error';msg.textContent='Could not send request: '+(e.message||e);msg.classList.remove('hidden');}
