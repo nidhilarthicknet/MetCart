@@ -348,7 +348,7 @@ renderAll();refreshReviewStats().then(()=>renderProducts());syncCatalog().then((
     const b=node.closest('button,input[type="submit"]');
     if(!b)return null;
     if(b.matches('#confirmPay,#payNow,#checkoutPay,#sendPayment,#installConfirm'))return b;
-    if(navTarget(b))return null;
+    if(b.matches('button[data-page],button[data-nav],nav button'))return null;
     const label=(b.innerText||b.value||b.getAttribute('aria-label')||'').trim();
     return /pay securely|pay now|confirm payment|review and send|send payment|send jp|send money|transfer|buy now|checkout cart|subscribe now|buy\s*\/\s*renew|confirm purchase|install with metpay|install .+ for|purchase now/i.test(label)?b:null;
   }
