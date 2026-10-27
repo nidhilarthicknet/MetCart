@@ -338,7 +338,7 @@ renderAll();refreshReviewStats().then(()=>renderProducts());syncCatalog().then((
   };
   function navTarget(node){
     if(!(node instanceof Element))return null;
-    return node.closest('button[data-page],button[data-nav],nav button,a[href^="#"],button[onclick*="tryShow("],button[onclick*="openApp("]');
+    return node.closest('button[data-page],button[data-nav],nav button,a[href^="#"]');
   }
   function paymentTarget(node){
     if(!(node instanceof Element))return null;
