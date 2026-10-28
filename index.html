@@ -314,7 +314,7 @@ async function consumeMoleculeHandoff(){
  return true;
 }
 const authObserver=async()=>{const {data}=await supabase.auth.getSession();if(data.session){session=data.session;const u=data.session.user;const {data:p}=await supabase.from('profiles').select('*').eq('id',u.id).maybeSingle();if(p){profile=p;await supabase.from('metail_accounts').select('username,user_id').eq('user_id',p.id).then(({data})=>{metailIDs=data||[];});}restoreCartForCurrentUser();await syncCatalog();await consumeMoleculeHandoff();}renderAll();renderProfile();updateCartDock();};
-renderAll();refreshReviewStats().then(()=>renderProducts());syncCatalog().then(()=>renderAll());authObserver();
+renderAll();refreshReviewStats().then(()=>renderProducts());syncCatalog().then(()=>renderAll());authObserver();if(new URLSearchParams(location.search).get('moleculeAdd')==='1'){setTimeout(()=>{if(!session)showSignIn('Sign in to add the item you selected in Molecule. Your selection will be added after sign-in.');},700);}
 })();
 </script>
 
