@@ -299,19 +299,15 @@ async function consumeMoleculeHandoff(){
  const product=products.find(p=>p.name===pending.name);
  if(!product){console.warn('Molecule handoff item is not in the current MetCart catalogue:',pending.name);return false;}
  restoreCartForCurrentUser();
- const config=pending.configuration&&typeof pending.configuration==='object'?pending.configuration:null;
- if(config){
-  const validComponents=Array.isArray(config.components)?config.components.filter(x=>x&&typeof x.name==='string'&&products.some(p=>p.name===x.name)).map(x=>({field:String(x.field||''),name:x.name})).slice(0,16):[];
-  pending.configuration={...config,components:validComponents,ram:typeof config.ram==='string'&&products.some(p=>p.name===config.ram)?config.ram:null,rom:typeof config.rom==='string'&&products.some(p=>p.name===config.rom)?config.rom:null,source:'Molecule'};
- }
- const price=Number.isFinite(Number(pending.price))&&Number(pending.price)>=Number(product.price)?Number(pending.price):Number(product.price);
- cart.push({name:product.name,qty:1,price,category:product.category, ...(pending.configuration?{configuration:pending.configuration}:{})});
- updateCartDock();
- try{localStorage.removeItem('molecule_pending_metcart_add_v1');}catch(e){}
- openModal('Molecule selection added to your cart',`<div class="notice success"><b>${safe(product.name)}</b><p>Your selection from Molecule is now in your MetCart cart. Review the item and final configuration before checkout.</p><p><b>Estimated total: ${money(price)}</b></p></div><button class="primary" id="moleculeViewCart">View cart / Checkout</button><button class="secondary" id="moleculeContinue">Continue shopping</button>`);
- $('moleculeViewCart').onclick=showCart;
- $('moleculeContinue').onclick=closeModal;
- return true;
+ const cfg=pending.configuration&&typeof pending.configuration==='object'?pending.configuration:null;
+ const comps=[],seen=new Set([product.name]);
+ if(cfg&&Array.isArray(cfg.components)){for(const item of cfg.components){if(!item||typeof item.name!=='string'||seen.has(item.name))continue;const p=products.find(x=>x.name===item.name);if(!p)continue;seen.add(item.name);comps.push({name:p.name,field:String(item.field||'configuration').slice(0,40)});}}
+ const safeCfg=cfg?{components:comps.map(x=>({name:x.name,field:x.field})),ram:typeof cfg.ram==='string'&&products.some(p=>p.name===cfg.ram)?cfg.ram:null,rom:typeof cfg.rom==='string'&&products.some(p=>p.name===cfg.rom)?cfg.rom:null,frame:['plastic','aluminium','titanium'].includes(cfg.frame)?cfg.frame:'plastic',cores:cfg.cores&&typeof cfg.cores==='object'?{cpu:String(cfg.cores.cpu||'4').slice(0,5),gpu:String(cfg.cores.gpu||'4').slice(0,5),npu:String(cfg.cores.npu||'0').slice(0,5)}:{cpu:'4',gpu:'4',npu:'0'},processorOnly:cfg.processorOnly===true,source:'Molecule'}:null;
+ const base=Number(product.price)||0;cart.push({name:product.name,qty:1,price:base,category:product.category,...(safeCfg?{configuration:safeCfg}:{})});
+ let extra=0;for(const item of comps){const p=products.find(x=>x.name===item.name);if(!p)continue;const price=Number(p.price)||0;extra+=price;cart.push({name:p.name,qty:1,price,category:p.category,configuration:{source:'Molecule configuration add-on',parent:product.name,field:item.field}});}
+ const total=base+extra;updateCartDock();try{localStorage.removeItem('molecule_pending_metcart_add_v1');}catch(e){}
+ openModal('Molecule selection added to your cart','<div class="notice success"><b>'+safe(product.name)+'</b><p>Your selection from Molecule is now in your MetCart cart. Component upgrades appear as separate catalogue-priced cart items. Review every item before checkout.</p><p><b>Catalogue-priced estimate: '+money(total)+'</b></p></div><button class="primary" id="moleculeViewCart">View cart / Checkout</button><button class="secondary" id="moleculeContinue">Continue shopping</button>');
+ $('moleculeViewCart').onclick=showCart;$('moleculeContinue').onclick=closeModal;return true;
 }
 const authObserver=async()=>{const {data}=await supabase.auth.getSession();if(data.session){session=data.session;const u=data.session.user;const {data:p}=await supabase.from('profiles').select('*').eq('id',u.id).maybeSingle();if(p){profile=p;await supabase.from('metail_accounts').select('username,user_id').eq('user_id',p.id).then(({data})=>{metailIDs=data||[];});}restoreCartForCurrentUser();await syncCatalog();await consumeMoleculeHandoff();}renderAll();renderProfile();updateCartDock();};
 renderAll();refreshReviewStats().then(()=>renderProducts());syncCatalog().then(()=>renderAll());authObserver();if(new URLSearchParams(location.search).get('moleculeAdd')==='1'){setTimeout(()=>{if(!session)showSignIn('Sign in to add the item you selected in Molecule. Your selection will be added after sign-in.');},700);}
