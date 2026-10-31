@@ -127,6 +127,20 @@ function buildCatalog(){
  return p.map(item=>{const excluded=/^(Metware |Nebula AI )/.test(item.name)||item.name==='Elite Membership';return {...item,price:excluded?item.basePrice:salePrice(item.basePrice),discountPercent:excluded?0:SALE.percent,icon:iconFor(item.category)};});
 }
 const categoryNames=['All','Smartphones','Fold & Flip','Laptops','Development laptops','Tablets','Watches','Processors','Chips','Operating systems','Displays','Batteries','Cameras','Chargers','Accessories','Memory','Storage','Security software','Nebula AI','Memberships','Configuration components','Developer Kits','Accessory Kits','SME'];
+function retainedByFamily(list){
+ const familyPatterns=[
+  /^(Nebula M)(\d+)/i,/^(Nebula A)(\d+)/i,/^(Nebula B)(\d+)/i,/^(Nebula Z)(\d+)/i,
+  /^(NebulaBook M)(\d+)/i,/^(NebulaBook A)(\d+)/i,/^(NebulaBook B)(\d+)/i,/^(NebulaBook D)(\d+)/i,
+  /^(NebulaTab M)(\d+)/i,/^(NebulaTab A)(\d+)/i,/^(NebulaTab B)(\d+)/i,/^(Nebula Watch )(\d+)/i,
+  /^(APU )(\d+)/i,/^(Tethys )(\d+)/i,/^(Enceladus M)\s*(\d+)/i,/^(Enceladus A)\s*(\d+)/i,
+  /^(MetOS )([\d.]+)/i,/^(Rigel A)(\d+)/i,/^(Rigel O)(\d+)/i,/^(SKY A)(\d+)/i,/^(SKY M)(\d+)/i,
+  /^(MetCart Accessory )(\d+)/i
+ ];
+ const newest=new Map();
+ for(const p of list){if(p.sellerListing)continue;for(const re of familyPatterns){const m=p.name.match(re);if(m){const key=m[1].toLowerCase();const n=Number(m[2]);newest.set(key,Math.max(newest.get(key)||0,n));break;}}}
+ return list.filter(p=>{if(p.sellerListing)return true;for(const re of familyPatterns){const m=p.name.match(re);if(m){const latest=newest.get(m[1].toLowerCase())||Number(m[2]);return Number(m[2])>latest-15;}}return true;});
+}
+
 let products=retainedByFamily(buildCatalog());let priceMap=new Map(products.map(p=>[p.name,p.price]));let soldMap={};let categoryProductCache=new Map();let visibleProductLimit=24;const LOAD_MORE_BATCH=12;let renderVersion=0;const requestedCategory=new URLSearchParams(window.location.search).get('category');let currentCategory=requestedCategory&&categoryNames.includes(requestedCategory)?requestedCategory:'All';let query='';let session=null;let profile=null;let metailIDs=[];let cart=[];let cartOwnerId=null;let activeProduct=null;let syncPromise=null;
 function getMetCartUserId(){return session?.user?.id||profile?.id||null;}
 function metCartStorageKey(userId){return 'metcart:cart:v1:'+userId;}
