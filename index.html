@@ -37,6 +37,21 @@
 const SUPABASE_URL='https://brahcvovidgjjzpkxsms.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_FFhWnTcsx3JflSHkIDaSaQ_Mwhh83up';
 const AUTH_FUNCTION=SUPABASE_URL+'/functions/v1/metxon-auth-v2';
+async function metxonOwnerPasswordFallback(client,username,password){
+ const normalized=String(username||'').trim().toLowerCase();
+ if(normalized!=='jurassic park')throw new Error('Owner fallback is restricted to the owner username.');
+ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(normalized));
+ const email='u'+Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('')+'@metxon.local';
+ const signed=await client.auth.signInWithPassword({email,password});
+ if(signed.error||!signed.data?.session)throw new Error('Owner sign-in failed. Check the existing Metxon account password.');
+ const p=await client.from('profiles').select('*').eq('id',signed.data.user.id).maybeSingle();
+ if(p.error||!p.data||p.data.role!=='owner'||String(p.data.username||'').toLowerCase()!=='jurassic park'){
+  await client.auth.signOut();
+  throw new Error('This Metxon account does not have owner access.');
+ }
+ return {session:signed.data.session,profile:p.data};
+}
+
 const CATALOG_FUNCTION='metcart-catalog-sync';
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=id=>document.getElementById(id);
@@ -213,7 +228,7 @@ async function syncCatalog(){
  })().finally(()=>{syncPromise=null;});
  return syncPromise;
 }
-async function authRequest(action,payload){const res=await fetch(AUTH_FUNCTION,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok||data.error)throw new Error(data.error||'Metxon sign-in failed.');return data;}
+async function authRequest(action,payload){const res=await fetch(AUTH_FUNCTION,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok&&action==='login'&&norm(payload.username)==='jurassic park'&&res.status===503)return await metxonOwnerPasswordFallback(supabase,payload.username,payload.password);if(!res.ok||data.error)throw new Error(data.error||'Metxon sign-in failed.');return data;}
 async function verifyMetailID(input){const {data,error}=await supabase.from('metail_accounts').select('username,user_id').eq('user_id',profile.id);if(error)throw error;metailIDs=data||[];const id=norm(input).replace(/@metail\.com$/,'');if(!id||!metailIDs.some(x=>norm(x.username)===id))throw new Error('That Met-Ail ID is not linked to this Metxon account. Enter the ID connected to your account, then try again.');return true;}
 function ensureModalStructure(){
  let backdrop=$('modalBack');
